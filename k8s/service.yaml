@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cia-app-svc
+spec:
+  type: LoadBalancer   # Azure assigns a public IP so the app is reachable from a browser
+  selector:
+    app: cia-app
+  ports:
+    - port: 80
+      targetPort: 8080
