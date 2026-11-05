@@ -4,8 +4,8 @@
 set -euo pipefail
 
 RG=rg-cia2
-LOCATION=${LOCATION:-centralindia}
-ACR=${ACR:-ciaacr$RANDOM}
+LOCATION=${LOCATION:-uaenorth}
+ACR=${ACR:-ciaacr24413}
 AKS=aks-cia2
 
 az provider register --namespace Microsoft.ContainerService --wait
@@ -13,7 +13,8 @@ az provider register --namespace Microsoft.ContainerRegistry --wait
 
 az group create -n $RG -l $LOCATION
 az acr create -g $RG -n $ACR --sku Basic --admin-enabled true
-az aks create -g $RG -n $AKS --tier free --node-count 1 --node-vm-size Standard_B2s \
+# Azure for Students only allows small VM sizes in some regions, so AKS runs in Korea Central
+az aks create -g $RG -n $AKS -l koreacentral --tier free --node-count 1 --node-vm-size Standard_B2as_v2 \
   --generate-ssh-keys --enable-managed-identity
 
 # kubeconfig for the pipelines (stored as a GitHub secret, never committed)
