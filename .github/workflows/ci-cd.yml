@@ -78,8 +78,6 @@ jobs:
     needs: [build-test, secret-scan]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    outputs:
-      image: ${{ steps.meta.outputs.image }}
     steps:
       - uses: actions/checkout@v4
 
@@ -132,7 +130,7 @@ jobs:
         run: pipx install ansible-core
 
       - name: Deploy with Ansible playbook
-        run: ansible-playbook -i ansible/inventory.ini ansible/deploy.yml -e image=${{ needs.docker.outputs.image }}
+        run: ansible-playbook -i ansible/inventory.ini ansible/deploy.yml -e image=$ACR_SERVER/$IMAGE_NAME:${GITHUB_SHA::7}
 
       - name: Verify deployment status and availability
         run: |
@@ -141,5 +139,5 @@ jobs:
           kubectl get svc cia-app-svc
           IP=$(kubectl get svc cia-app-svc -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
           curl -fsS "http://$IP/health"
-          echo "### Deployed ${{ needs.docker.outputs.image }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Deployed $ACR_SERVER/$IMAGE_NAME:${GITHUB_SHA::7}" >> "$GITHUB_STEP_SUMMARY"
           echo "App URL: http://$IP" >> "$GITHUB_STEP_SUMMARY"
